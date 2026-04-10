@@ -6,145 +6,193 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 40px;
       background: #f9f9f9;
+      margin: 40px;
     }
     h1 {
       text-align: center;
+      margin-bottom: 20px;
       color: #333;
     }
-    .calculator {
-      max-width: 600px;
-      margin: auto;
+    .section {
       background: #fff;
-      padding: 20px;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #4CAF50;
+      font-size: 18px;
     }
     label {
       display: block;
       margin-top: 10px;
+      font-weight: bold;
     }
-    select, input {
+    input, select {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .helper {
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 10px;
     }
     button {
-      margin-top: 15px;
-      padding: 10px;
       width: 100%;
+      padding: 12px;
       background: #4CAF50;
       color: white;
       border: none;
-      cursor: pointer;
+      border-radius: 6px;
       font-size: 16px;
+      margin-top: 15px;
+      cursor: pointer;
     }
     button:hover {
       background: #45a049;
     }
-    .result {
-      margin-top: 20px;
-      padding: 15px;
+    .results {
       background: #eef;
       border-radius: 6px;
+      padding: 15px;
+      margin-top: 20px;
     }
-    #motorcycleSection {
-      display: none; /* hidden by default */
+    .results h3 {
+      margin-top: 0;
+      color: #333;
+    }
+    .results table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 10px;
-      padding: 10px;
-      background: #f2f2f2;
-      border-radius: 6px;
+    }
+    .results th, .results td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    .results th {
+      background: #ddd;
     }
   </style>
 </head>
 <body>
   <h1>Transport Emissions Calculator</h1>
-  <div class="calculator">
+
+  <!-- Vehicle Section -->
+  <div class="section">
+    <h2>Vehicle Information</h2>
     <label for="vehicle">Select Vehicle Type:</label>
-    <select id="vehicle" onchange="toggleMotorcycleSection()">
+    <select id="vehicle" onchange="toggleSections()">
       <option value="car">Car</option>
       <option value="van">Van</option>
       <option value="jeepney">Jeepney</option>
       <option value="bus">Bus</option>
       <option value="motorcycle">Motorcycle</option>
     </select>
+    <div class="helper">Choose the type of vehicle you use.</div>
 
-    <div id="motorcycleSection">
-      <label for="engineType">Select Motorcycle Engine Type:</label>
+    <!-- Car Section -->
+    <div id="carSection" style="display:none;">
+      <label for="carType">Car Type:</label>
+      <select id="carType">
+        <option value="nonhybrid">Non‑Hybrid</option>
+        <option value="hybrid">Hybrid</option>
+        <option value="electric">Electric</option>
+      </select>
+      <div class="helper">Select if your car is hybrid, electric, or traditional.</div>
+    </div>
+
+    <!-- Motorcycle Section -->
+    <div id="motorcycleSection" style="display:none;">
+      <label for="engineType">Motorcycle Engine Type:</label>
       <select id="engineType">
         <option value="2stroke">2‑Stroke</option>
         <option value="4stroke">4‑Stroke</option>
       </select>
+      <div class="helper">Choose your motorcycle’s engine type.</div>
     </div>
+  </div>
 
-    <label for="fuel">Select Fuel Type:</label>
-    <select id="fuel">
-      <option value="gasoline">Gasoline</option>
-      <option value="diesel_euro2">Diesel (Euro‑2)</option>
-      <option value="diesel_euro4">Diesel (Euro‑4)</option>
-      <option value="electric">Electric</option>
-    </select>
-
+  <!-- Trip Section -->
+  <div class="section">
+    <h2>Trip Information</h2>
     <label for="distance">Distance (km, roundtrip):</label>
     <input type="number" id="distance" value="26">
+    <div class="helper">Enter the total distance of your trip.</div>
 
     <label for="passengers">Passenger Count:</label>
     <input type="number" id="passengers" value="1">
+    <div class="helper">Number of passengers sharing the ride.</div>
+  </div>
 
-    <button onclick="calculateEmissions()">Calculate Emissions</button>
+  <button onclick="calculateEmissions()">Calculate Emissions</button>
 
-    <div class="result" id="result"></div>
+  <!-- Results Section -->
+  <div class="results" id="result">
+    <h3>Results</h3>
+    <table>
+      <tr>
+        <th>Daily Emissions (kg CO₂)</th>
+        <th>Yearly Emissions (tons CO₂)</th>
+        <th>Per Passenger (kg CO₂/trip)</th>
+      </tr>
+      <tr>
+        <td id="daily">–</td>
+        <td id="yearly">–</td>
+        <td id="perPassenger">–</td>
+      </tr>
+    </table>
   </div>
 
   <script>
-    function toggleMotorcycleSection() {
+    function toggleSections() {
       const vehicle = document.getElementById("vehicle").value;
-      const section = document.getElementById("motorcycleSection");
-      section.style.display = (vehicle === "motorcycle") ? "block" : "none";
+      document.getElementById("carSection").style.display = (vehicle === "car") ? "block" : "none";
+      document.getElementById("motorcycleSection").style.display = (vehicle === "motorcycle") ? "block" : "none";
     }
 
     function calculateEmissions() {
       const vehicle = document.getElementById("vehicle").value;
-      const fuel = document.getElementById("fuel").value;
+      const fuel = document.getElementById("fuel") ? document.getElementById("fuel").value : "gasoline";
       const distance = parseFloat(document.getElementById("distance").value);
       const passengers = parseInt(document.getElementById("passengers").value);
 
-      // Fuel efficiency (L/100 km) by vehicle type
-      let eff;
+      let eff = 0;
+
       if (vehicle === "motorcycle") {
         const engineType = document.getElementById("engineType").value;
-        eff = (engineType === "2stroke") ? 4.5 : 3.0; // 2-stroke vs 4-stroke
+        eff = (engineType === "2stroke") ? 4.5 : 3.0;
+      } else if (vehicle === "car") {
+        const carType = document.getElementById("carType").value;
+        if (carType === "nonhybrid") eff = 8;
+        if (carType === "hybrid") eff = 5;
+        if (carType === "electric") eff = 0;
       } else {
         const effTable = {
-          car: {gasoline: 8, diesel_euro2: 7, diesel_euro4: 6, electric: 0},
-          van: {gasoline: 11, diesel_euro2: 12, diesel_euro4: 10, electric: 0},
-          jeepney: {gasoline: 0, diesel_euro2: 20, diesel_euro4: 15, electric: 0},
-          bus: {gasoline: 0, diesel_euro2: 30, diesel_euro4: 25, electric: 0}
+          van: 11,
+          jeepney: 20,
+          bus: 30
         };
-        eff = effTable[vehicle][fuel];
+        eff = effTable[vehicle];
       }
 
-      // Carbon content (kg CO₂/L)
-      const carbon = {
-        gasoline: 2.31,
-        diesel_euro2: 2.68,
-        diesel_euro4: 2.68,
-        electric: 0
-      };
-
+      const carbon = 2.31; // gasoline baseline
       const fuelUsed = (distance / 100) * eff;
-      const dailyEmissionsKg = fuelUsed * carbon[fuel];
+      const dailyEmissionsKg = fuelUsed * carbon;
       const yearlyEmissionsKg = dailyEmissionsKg * 30 * 12;
       const yearlyEmissionsTons = yearlyEmissionsKg / 1000;
       const perPassenger = passengers > 0 ? (dailyEmissionsKg / passengers) : dailyEmissionsKg;
 
-      document.getElementById("result").innerHTML = `
-        <strong>Results:</strong><br>
-        Daily Emissions: ${dailyEmissionsKg.toFixed(2)} kg CO₂<br>
-        Yearly Emissions: ${yearlyEmissionsTons.toFixed(2)} tons CO₂<br>
-        Per Passenger (per trip): ${perPassenger.toFixed(2)} kg CO₂
-      `;
+      document.getElementById("daily").innerText = dailyEmissionsKg.toFixed(2);
+      document.getElementById("yearly").innerText = yearlyEmissionsTons.toFixed(2);
+      document.getElementById("perPassenger").innerText = perPassenger.toFixed(2);
     }
   </script>
 </body>
