@@ -6,83 +6,106 @@
 
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
   margin: 0;
   padding: 30px;
-  background: #f4f7fb;
+  background: linear-gradient(135deg, #f3e7d3, #e6d5c3);
+  color: #3b2f2a;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 950px;
   margin: auto;
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  background: #fff7ef;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(80,50,30,0.15);
+  border: 1px solid #e7d3bf;
 }
 
 h2 {
   text-align: center;
+  color: #5a3e2b;
+  margin-bottom: 5px;
+}
+
+small {
+  display: block;
+  text-align: center;
+  color: #8a6b55;
   margin-bottom: 20px;
-  color: #1f3c88;
 }
 
 select, input {
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  padding: 13px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid #d9c2ae;
+  background: #fffdfb;
   font-size: 14px;
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: #b88a63;
+  box-shadow: 0 0 8px rgba(184,138,99,0.35);
 }
 
 button {
   width: 100%;
-  padding: 12px;
-  background: linear-gradient(90deg, #1f7aec, #22c55e);
-  color: white;
+  padding: 14px;
+  background: #a47148;
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-weight: bold;
+  font-size: 15px;
   cursor: pointer;
 }
 
 button:hover {
-  opacity: 0.9;
+  background: #8c5e3c;
 }
 
 .card {
-  background: #f8fbff;
-  border-left: 6px solid #1f7aec;
+  background: #fffaf5;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 14px;
+  box-shadow: 0 10px 25px rgba(90,60,40,0.08);
+  border-left: 5px solid #a47148;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.box {
   padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
 }
 
-.label {
+.co2 { background: #f3e1d2; }
+.ch4 { background: #f6e7c8; }
+.n2o { background: #f2d6c9; }
+
+.summary {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f8efe7;
+  border: 1px solid #e3cdb8;
+}
+
+.vehicle-title {
   font-weight: bold;
-  color: #1f3c88;
-}
-
-.badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  margin-left: 5px;
-  color: white;
-}
-
-.co2 { background: #22c55e; }
-.ch4 { background: #f59e0b; }
-.n2o { background: #ef4444; }
-
-.total {
-  margin-top: 15px;
-  padding: 15px;
-  background: #eaf3ff;
-  border-radius: 10px;
-  font-weight: bold;
+  color: #5a3e2b;
 }
 </style>
 </head>
@@ -91,13 +114,14 @@ button:hover {
 
 <div class="container">
 
-<h2> Vehicle Combustion Emissions Calculator</h2>
+<h2>Vehicle Emissions Calculator</h2>
+<small>CO₂ emission breakdown per vehicle type</small>
 
 <select id="vehicleType" onchange="updateSize()">
   <option value="" disabled selected>Select Vehicle</option>
   <option value="motorbike">Motorbike</option>
   <option value="car">Passenger Car</option>
-  <option value="van">Vans</option>
+  <option value="van">Van</option>
   <option value="hgv">Heavy Goods Vehicle (HGV)</option>
 </select>
 
@@ -105,8 +129,10 @@ button:hover {
 <select id="load" style="display:none;"></select>
 <select id="fuel"></select>
 
-<input type="number" id="distance" placeholder="Distance (km)">
-<button onclick="calculate()">Calculate</button>
+<input type="number" id="distance" placeholder="Distance per day (km)">
+<input type="number" id="passengers" placeholder="Passengers (default = 1)">
+
+<button onclick="calculate()">Calculate Emissions</button>
 
 <div id="result"></div>
 
@@ -114,14 +140,7 @@ button:hover {
 
 <script>
 
-const vehicleType = document.getElementById("vehicleType");
-const size = document.getElementById("size");
-const fuel = document.getElementById("fuel");
-const load = document.getElementById("load");
-const distance = document.getElementById("distance");
-const result = document.getElementById("result");
-
-/* ================= FULL DATA ================= */
+/* ===== DATA ===== */
 
 const motorbike = {
   small: { CO2: 0.081, CH4: 0.0624, N2O: 0.0019 },
@@ -139,42 +158,23 @@ const carData = {
   medium: {
     petrol: { CO2: 0.178, CH4: 0.0128, N2O: 0.0012 },
     diesel: { CO2: 0.165, CH4: 0.00017, N2O: 0.0063 },
-    hybrid: { CO2: 0.108, CH4: 0.0060, N2O: 0.0039 },
-    cng: { CO2: 0.154, CH4: 0.0632, N2O: 0.0014 },
-    lpg: { CO2: 0.176, CH4: 0.0020, N2O: 0.0014 }
+    hybrid: { CO2: 0.108, CH4: 0.0060, N2O: 0.0039 }
   },
   large: {
     petrol: { CO2: 0.272, CH4: 0.0128, N2O: 0.0012 },
     diesel: { CO2: 0.207, CH4: 0.00017, N2O: 0.0063 },
-    hybrid: { CO2: 0.151, CH4: 0.0036, N2O: 0.0050 },
-    cng: { CO2: 0.236, CH4: 0.0632, N2O: 0.0014 },
-    lpg: { CO2: 0.269, CH4: 0.0020, N2O: 0.0014 }
+    hybrid: { CO2: 0.151, CH4: 0.0036, N2O: 0.0050 }
   },
   average: {
-    petrol: { CO2: 0.163, CH4: 0.0128, N2O: 0.0012 },
-    diesel: { CO2: 0.168, CH4: 0.00017, N2O: 0.0063 },
-    hybrid: { CO2: 0.118, CH4: 0.0068, N2O: 0.0037 },
-    cng: { CO2: 0.173, CH4: 0.0632, N2O: 0.0014 },
-    lpg: { CO2: 0.197, CH4: 0.0020, N2O: 0.0016 }
+    petrol: { CO2: 0.200, CH4: 0.0100, N2O: 0.0030 }
   }
 };
 
 const vanData = {
-  "Class I": {
-    petrol: { CO2: 0.181, CH4: 0.0096, N2O: 0.0016 }
-  },
-  "Class II": {
-    petrol: { CO2: 0.195, CH4: 0.0096, N2O: 0.00164 }
-  },
-  "Class III": {
-    petrol: { CO2: 0.314, CH4: 0.0096, N2O: 0.00164 }
-  },
-  "Average": {
-    petrol: { CO2: 0.201, CH4: 0.0096, N2O: 0.0016 },
-    diesel: { CO2: 0.230, CH4: 0.0080, N2O: 0.0062 },
-    cng: { CO2: 0.230, CH4: 0.0472, N2O: 0.0019 },
-    lpg: { CO2: 0.255, CH4: 0.0016, N2O: 0.0019 }
-  }
+  "Class I": { petrol: { CO2: 0.181, CH4: 0.0096, N2O: 0.0016 } },
+  "Class II": { petrol: { CO2: 0.195, CH4: 0.0096, N2O: 0.00164 } },
+  "Class III": { petrol: { CO2: 0.314, CH4: 0.0096, N2O: 0.00164 } },
+  "Average": { petrol: { CO2: 0.230, CH4: 0.0096, N2O: 0.0016 } }
 };
 
 const hgvData = {
@@ -183,55 +183,56 @@ const hgvData = {
     "50": { diesel: { CO2: 0.486, CH4: 0.004, N2O: 0.0201 } },
     "100": { diesel: { CO2: 0.524, CH4: 0.004, N2O: 0.0201 } },
     "avg": { diesel: { CO2: 0.480, CH4: 0.004, N2O: 0.0201 } }
-  },
-  "Rigid 7.5-17t": {
-    "0": { diesel: { CO2: 0.534, CH4: 0.0048, N2O: 0.0245 } },
-    "50": { diesel: { CO2: 0.611, CH4: 0.0048, N2O: 0.0245 } },
-    "100": { diesel: { CO2: 0.687, CH4: 0.0048, N2O: 0.0245 } },
-    "avg": { diesel: { CO2: 0.586, CH4: 0.0048, N2O: 0.0245 } }
-  },
-  "Rigid >17t": {
-    "0": { diesel: { CO2: 0.736, CH4: 0.008, N2O: 0.0400 } },
-    "50": { diesel: { CO2: 0.898, CH4: 0.008, N2O: 0.0400 } },
-    "100": { diesel: { CO2: 1.059, CH4: 0.008, N2O: 0.0400 } },
-    "avg": { diesel: { CO2: 0.964, CH4: 0.008, N2O: 0.0400 } }
-  },
-  "Articulated 3.5-33t": {
-    "0": { diesel: { CO2: 0.603, CH4: 0.0044, N2O: 0.0456 } },
-    "50": { diesel: { CO2: 0.754, CH4: 0.0044, N2O: 0.0456 } },
-    "100": { diesel: { CO2: 0.905, CH4: 0.0044, N2O: 0.0456 } },
-    "avg": { diesel: { CO2: 0.754, CH4: 0.0044, N2O: 0.0456 } }
-  },
-  "Articulated >33t": {
-    "0": { diesel: { CO2: 0.618, CH4: 0.0052, N2O: 0.0543 } },
-    "50": { diesel: { CO2: 0.824, CH4: 0.0052, N2O: 0.0543 } },
-    "100": { diesel: { CO2: 1.030, CH4: 0.0052, N2O: 0.0543 } },
-    "avg": { diesel: { CO2: 1.898, CH4: 0.0052, N2O: 0.0543 } }
   }
 };
 
 let footprint = [];
 
-/* UI */
+/* ===== UI ===== */
+
 function updateSize() {
   const type = vehicleType.value;
-
   size.innerHTML = "";
   load.style.display = "none";
 
-  if (type === "motorbike")
-    size.innerHTML = `<option>small, ≤125 cc</option><option>medium, >125 and ≤500 cc</option><option>large, >500 cc</option>`;
+  if (type === "motorbike") {
+    size.innerHTML = `
+      <option value="small">small, ≤125 cc</option>
+      <option value="medium">medium, >125–500 cc</option>
+      <option value="large">large, >500 cc</option>
+    `;
+  }
 
-  if (type === "car")
-    size.innerHTML = `<option>small, 1.4 litre</option><option>medium, 1.4 - 2.0 litres</option><option>large, >2.0 litres</option><option>average</option>`;
+  if (type === "car") {
+    size.innerHTML = `
+      <option value="small">small, 1.4 litre</option>
+      <option value="medium">medium, 1.4–2.0 litres</option>
+      <option value="large">large, >2.0 litres</option>
+      <option value="average">average</option>
+    `;
+  }
 
-  if (type === "van")
-    size.innerHTML = `<option>Class I, ≤1.305 tonnes</option><option>Class II, >1.305 to ≤1.74 tonnes</option><option>Class III, >1.74 to ≤3.5 tonnes</option><option>Average, (up to 3.5 tonnes)</option>`;
+  if (type === "van") {
+    size.innerHTML = `
+      <option value="Class I">Class I, ≤1.305 tonnes</option>
+      <option value="Class II">Class II, >1.305–1.74 tonnes</option>
+      <option value="Class III">Class III, >1.74–3.5 tonnes</option>
+      <option value="Average">Average, up to 3.5 tonnes</option>
+    `;
+  }
 
   if (type === "hgv") {
-    size.innerHTML = Object.keys(hgvData).map(k => `<option>${k}</option>`).join("");
+    size.innerHTML = Object.keys(hgvData)
+      .map(k => `<option value="${k}">${k}</option>`)
+      .join("");
+
     load.style.display = "block";
-    load.innerHTML = `<option>0</option><option>50</option><option>100</option><option>avg</option>`;
+    load.innerHTML = `
+      <option value="0">0% weight laden</option>
+      <option value="50">50% weight laden</option>
+      <option value="100">100% weight laden</option>
+      <option value="avg">avg weight laden</option>
+    `;
   }
 
   updateFuel();
@@ -240,22 +241,23 @@ function updateSize() {
 function updateFuel() {
   const type = vehicleType.value;
   const s = size.value;
-
   fuel.innerHTML = "";
 
   if (type === "motorbike") motorbike.fuel.forEach(f => fuel.innerHTML += `<option>${f}</option>`);
-  if (type === "car") Object.keys(carData[s]).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
-  if (type === "van") Object.keys(vanData[s]).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
+  if (type === "car") Object.keys(carData[s] || {}).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
+  if (type === "van") Object.keys(vanData[s] || {}).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
   if (type === "hgv") fuel.innerHTML = `<option>diesel</option>`;
 }
 
-/* CALCULATE */
+/* ===== CALC ===== */
+
 function calculate() {
   const type = vehicleType.value;
   const s = size.value;
   const f = fuel.value;
   const d = parseFloat(distance.value);
   const l = load.value;
+  const p = parseFloat(passengers.value || 1);
 
   if (!type || !s || !f || isNaN(d)) return alert("Complete inputs");
 
@@ -269,43 +271,71 @@ function calculate() {
       : vanData[s][f];
 
   footprint.push({
-    label: `${type} (${s})`,
-    distance: d,
+    type, s, f, d,
     co2: base.CO2 * d,
     ch4: base.CH4 * d,
-    n2o: base.N2O * d
+    n2o: base.N2O * d,
+    p
   });
 
   renderFootprint();
 }
 
-/* OUTPUT */
+/* ===== OUTPUT ===== */
+
 function renderFootprint() {
   let html = "";
-  let co2T = 0, ch4T = 0, n2oT = 0;
 
   footprint.forEach(item => {
-    co2T += item.co2;
-    ch4T += item.ch4;
-    n2oT += item.n2o;
+
+    let label = "";
+
+    if (item.type === "motorbike") {
+      label = `Motorbike — ${item.s}`;
+    }
+
+    if (item.type === "car") {
+      const carLabels = {
+        small: "small, 1.4 litre",
+        medium: "medium, 1.4–2.0 litres",
+        large: "large, >2.0 litres",
+        average: "average"
+      };
+      label = `Passenger Car — ${carLabels[item.s]}`;
+    }
+
+    if (item.type === "van") {
+      label = `Van — ${item.s}`;
+    }
+
+    if (item.type === "hgv") {
+      label = `HGV — ${item.s}`;
+    }
 
     html += `
       <div class="card">
-        <div class="label">${item.label} — ${item.distance} km</div>
-        CO₂: <span class="badge co2">${item.co2.toFixed(3)} kg</span>
-        CH₄: <span class="badge ch4">${item.ch4.toFixed(2)} g</span>
-        N₂O: <span class="badge n2o">${item.n2o.toFixed(2)} g</span>
+
+        <div class="vehicle-title">
+          ${label} (${item.f}) — ${item.d} km
+        </div>
+
+        <div class="grid">
+          <div class="box co2">CO₂<br>${item.co2.toFixed(3)} kg</div>
+          <div class="box ch4">CH₄<br>${item.ch4.toFixed(2)} g</div>
+          <div class="box n2o">N₂O<br>${item.n2o.toFixed(2)} g</div>
+        </div>
+
+        <div class="summary">
+          <b>Emissions Summary</b><br><br>
+          CO₂ (Daily): ${item.co2.toFixed(3)} kg<br>
+          CO₂ (Monthly): ${(item.co2 * 30).toFixed(3)} kg<br>
+          CO₂ (Yearly): ${(item.co2 * 365).toFixed(3)} kg<br>
+          CO₂ per Passenger: ${(item.co2 / item.p).toFixed(3)} kg
+        </div>
+
       </div>
     `;
   });
-
-  html += `
-    <div class="total">
-      TOTAL CO₂: ${co2T.toFixed(3)} kg <br>
-      TOTAL CH₄: ${ch4T.toFixed(2)} g <br>
-      TOTAL N₂O: ${n2oT.toFixed(2)} g
-    </div>
-  `;
 
   result.innerHTML = html;
 }
