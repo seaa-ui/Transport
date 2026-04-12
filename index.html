@@ -102,7 +102,7 @@ button {
 
 <script>
 
-/* ================= DATA (UNCHANGED) ================= */
+/* ================= DATA ================= */
 
 const motorbike = {
   small: { CO2: 0.081, CH4: 0.0624, N2O: 0.0019 },
@@ -151,8 +151,8 @@ const vanData = {
     lpg: { CO2: 0.255, CH4: 0.0016, N2O: 0.0019 }
   }
 };
-  
- const hgvData = {
+
+const hgvData = {
   "Rigid 3.5-7.5t": {
     "0": { diesel: { CO2: 0.447, CH4: 0.004, N2O: 0.0201 } },
     "50": { diesel: { CO2: 0.486, CH4: 0.004, N2O: 0.0201 } },
@@ -185,12 +185,18 @@ const vanData = {
   }
 };
 
-/* ================= FUNCTIONS ================= */
+/* ================= HISTORY ================= */
+let resultHistory = [];
 
+/* ================= ELEMENTS ================= */
 const vehicleType = document.getElementById("vehicleType");
 const size = document.getElementById("size");
 const load = document.getElementById("load");
 const fuel = document.getElementById("fuel");
+const passengers = document.getElementById("passengers");
+const distance = document.getElementById("distance");
+
+/* ================= FUNCTIONS ================= */
 
 function updateSize() {
   const type = vehicleType.value;
@@ -207,32 +213,32 @@ function updateSize() {
 
   if (type === "car") {
     size.innerHTML = `
-     <option value="small">Small Car, <1.4 litre</option>
-     <option value="medium">Medium Car, 1.4 - 2.0 litres</option> 
-     <option value="large">Large Car, >2.0 litres</option> 
-     <option value="average">Average Car</option>`;
+      <option value="small">Small Car, <1.4 litre</option>
+      <option value="medium">Medium Car, 1.4 - 2.0 litres</option> 
+      <option value="large">Large Car, >2.0 litres</option> 
+      <option value="average">Average Car</option>`;
   }
 
   if (type === "van") {
     size.innerHTML = `
-     <option value="Class I">Class I, ≤1.305 tonnes</option> 
-     <option value="Class II">Class II, 1.305–1.74 tonnes</option> 
-     <option value="Class III">Class III, 1.74–3.5 tonnes</option>
-     <option value="Average">Average</option>`;
+      <option value="Class I">Class I</option>
+      <option value="Class II">Class II</option>
+      <option value="Class III">Class III</option>
+      <option value="Average">Average</option>`;
   }
 
- if (type === "hgv") {
-  size.innerHTML = Object.keys(hgvData)
-    .map(k => `<option value="${k}">${k}</option>`)
-    .join("");
+  if (type === "hgv") {
+    size.innerHTML = Object.keys(hgvData)
+      .map(k => `<option value="${k}">${k}</option>`)
+      .join("");
 
-  load.style.display = "block";
-  load.innerHTML = `
-    <option value="0">0% weight laden</option>
-    <option value="50">50% weight laden</option>
-    <option value="100">100% weight laden</option>
-    <option value="avg">avg weight laden</option>`;
-}
+    load.style.display = "block";
+    load.innerHTML = `
+      <option value="0">0% weight laden</option>
+      <option value="50">50% weight laden</option>
+      <option value="100">100% weight laden</option>
+      <option value="avg">avg weight laden</option>`;
+  }
 
   updateFuel();
 }
@@ -272,6 +278,11 @@ function calculate() {
   const p = parseFloat(passengers.value || 1);
   const l = load.value || "avg";
 
+  if (!type || !s || !f || isNaN(d)) {
+    alert("Please complete inputs");
+    return;
+  }
+
   let base =
     type === "hgv"
       ? hgvData[s][l][f]
@@ -281,26 +292,40 @@ function calculate() {
       ? carData[s][f]
       : vanData[s][f];
 
-  const co2 = base.CO2 * d;
+  if (!base) {
+    alert("Invalid selection");
+    return;
+  }
 
-  document.getElementById("result").innerHTML = `
+  const co2 = base.CO2 * d;
+  const ch4 = base.CH4 * d;
+  const n2o = base.N2O * d;
+
+  const newResult = `
     <div class="card">
       <b>${type.toUpperCase()} — ${sText} — ${fText} — ${d} km</b>
 
       <div class="grid">
         <div class="box co2">CO₂<br>${co2.toFixed(3)} kg</div>
-        <div class="box ch4">CH₄<br>${(base.CH4*d).toFixed(4)} g</div>
-        <div class="box n2o">N₂O<br>${(base.N2O*d).toFixed(4)} g</div>
+        <div class="box ch4">CH₄<br>${ch4.toFixed(4)} g</div>
+        <div class="box n2o">N₂O<br>${n2o.toFixed(4)} g</div>
       </div>
 
       <div class="summary">
-        Daily: ${co2.toFixed(3)} kg CO₂<br>
-        Monthly: ${(co2*30).toFixed(3)} kg CO₂<br>
-        Yearly: ${(co2*365).toFixed(3)} kg CO₂<br>
-        Per Passenger: ${(co2/p).toFixed(3)} kg CO₂
+        CO₂ Daily: ${co2.toFixed(3)} kg | Monthly: ${(co2*30).toFixed(3)} | Yearly: ${(co2*365).toFixed(3)} | Per Passenger: ${(co2/p).toFixed(3)}<br>
+        CH₄ Daily: ${ch4.toFixed(4)} g | Monthly: ${(ch4*30).toFixed(4)} | Yearly: ${(ch4*365).toFixed(4)} | Per Passenger: ${(ch4/p).toFixed(4)}<br>
+        N₂O Daily: ${n2o.toFixed(4)} g | Monthly: ${(n2o*30).toFixed(4)} | Yearly: ${(n2o*365).toFixed(4)} | Per Passenger: ${(n2o/p).toFixed(4)}
       </div>
     </div>
   `;
+
+  resultHistory.unshift(newResult);
+
+  if (resultHistory.length > 3) {
+    resultHistory.pop();
+  }
+
+  document.getElementById("result").innerHTML = resultHistory.join("");
 }
 
 </script>
