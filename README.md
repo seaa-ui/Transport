@@ -130,7 +130,7 @@ const vanData = {
 
 /* ================= HGV (REAL LOAD-SPECIFIC DATA) ================= */
 const hgvData = {
-  rigid_7_5: {
+  Rigid, 3.5-7.5t: {
     "0":   { diesel: { CO2: 0.447, CH4: 0.004, N2O: 0.0201 } },
     "50":  { diesel: { CO2: 0.486, CH4: 0.004, N2O: 0.0201 } },
     "100": { diesel: { CO2: 0.524, CH4: 0.004, N2O: 0.0201 } },
