@@ -83,7 +83,7 @@ button {
   <option disabled selected>Select Vehicle</option>
   <option value="motorbike">Motorbike</option>
   <option value="car">Passenger Car</option>
-  <option value="van">Van</option>
+  <option value="van">Van (Cargo)</option>
   <option value="hgv">Heavy Goods Vehicle</option>
 </select>
 
@@ -92,7 +92,7 @@ button {
 <select id="fuel"></select>
 
 <input type="number" id="distance" placeholder="Distance per day (km)">
-<input type="number" id="passengers" placeholder="Passengers (default = 1)">
+<input type="number" id="# of person on the vehicle" placeholder="# of Person on Vehicle (default = 1)">
 
 <button onclick="calculate()">Calculate</button>
 
@@ -221,7 +221,7 @@ function updateSize() {
 
   if (type === "van") {
     size.innerHTML = `
-      <option value="Class I">Class I, ≤1.305 tonnes </option>
+      <option value="Class I">Class I, ≤1.305 tonnes</option>
       <option value="Class II">Class II, >1.305 to ≤1.74 tonnes</option>
       <option value="Class III">Class III, >1.74 to ≤3.5 tonnes</option>
       <option value="Average">Average, (up to 3.5 tonnes</option>`;
