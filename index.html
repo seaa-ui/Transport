@@ -221,10 +221,10 @@ function updateSize() {
 
   if (type === "van") {
     size.innerHTML = `
-      <option value="Class I">Class I</option>
-      <option value="Class II">Class II</option>
-      <option value="Class III">Class III</option>
-      <option value="Average">Average</option>`;
+      <option value="Class I">Class I, ≤1.305 tonnes</option>
+      <option value="Class II">Class II, >1.305 to ≤1.74 tonnes</option>
+      <option value="Class III">Class III, >1.74 to ≤3.5 tonnes</option>
+      <option value="Average">Average, (up to 3.5 tonnes</option>`;
   }
 
   if (type === "hgv") {
