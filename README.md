@@ -91,7 +91,7 @@ button:hover {
 
 <div class="container">
 
-<h2>🌍 Mobile Combustion Emissions Calculator</h2>
+<h2> Vehicle Combustion Emissions Calculator</h2>
 
 <select id="vehicleType" onchange="updateSize()">
   <option value="" disabled selected>Select Vehicle</option>
