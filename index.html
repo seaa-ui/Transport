@@ -1,47 +1,331 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vehicle Emissions Calculator</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .calculator { margin: 20px 0; }
-        .result { margin-top: 20px; font-weight: bold; }
-    </style>
-    <script>
-        function calculateEmissions() {
-            const mileage = document.getElementById('mileage').value;
-            const fuelType = document.getElementById('fuelType').value;
-            let emissions;
+<meta charset="UTF-8">
+<title>Vehicle Emissions Calculator</title>
 
-            if (fuelType === 'petrol') {
-                emissions = mileage * 2.31;
-            } else if (fuelType === 'diesel') {
-                emissions = mileage * 2.68;
-            } else {
-                emissions = mileage * 2.71; // Assume LPG
-            }
+<style>
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 30px;
+  background: linear-gradient(135deg, #f3e7d3, #e6d5c3);
+  color: #3b2f2a;
+}
 
-            document.getElementById('result').innerHTML = `Emissions: ${emissions.toFixed(2)} kg CO2`; 
-        }
-    </script>
+.container {
+  max-width: 950px;
+  margin: auto;
+  background: #fff7ef;
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(80,50,30,0.15);
+  border: 1px solid #e7d3bf;
+}
+
+h2 {
+  text-align: center;
+  color: #5a3e2b;
+}
+
+small {
+  display: block;
+  text-align: center;
+  color: #8a6b55;
+  margin-bottom: 20px;
+}
+
+select, input {
+  width: 100%;
+  padding: 13px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid #d9c2ae;
+  background: #fffdfb;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background: #a47148;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+.card {
+  background: #fffaf5;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 14px;
+  border-left: 5px solid #a47148;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.box {
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.co2 { background: #f3e1d2; }
+.ch4 { background: #f6e7c8; }
+.n2o { background: #f2d6c9; }
+
+.summary {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f8efe7;
+}
+
+.vehicle-title {
+  font-weight: bold;
+  color: #5a3e2b;
+}
+</style>
 </head>
+
 <body>
-    <h1>Vehicle Emissions Calculator</h1>
-    <div class="calculator">
-        <label for="mileage">Mileage (in km): </label>
-        <input type="number" id="mileage" required>
-        <br><br>
-        <label for="fuelType">Fuel Type: </label>
-        <select id="fuelType">
-            <option value="petrol">Petrol</option>
-            <option value="diesel">Diesel</option>
-            <option value="lpg">LPG</option>
-        </select>
-        <br><br>
-        <button onclick="calculateEmissions()">Calculate Emissions</button>
+
+<div class="container">
+
+<h2>🚗 Vehicle Emissions Calculator</h2>
+<small>Daily • Monthly • Yearly • Per Passenger</small>
+
+<select id="vehicleType" onchange="updateSize()">
+  <option value="" disabled selected>Select Vehicle</option>
+  <option value="motorbike">Motorbike</option>
+  <option value="car">Passenger Car</option>
+  <option value="van">Van</option>
+  <option value="hgv">Heavy Goods Vehicle</option>
+</select>
+
+<select id="size" onchange="updateFuel()"></select>
+<select id="load" style="display:none;"></select>
+<select id="fuel"></select>
+
+<input type="number" id="distance" placeholder="Distance per day (km)">
+<input type="number" id="passengers" placeholder="Passengers (default = 1)">
+
+<button onclick="calculate()">Calculate</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+const vehicleType = document.getElementById("vehicleType");
+const size = document.getElementById("size");
+const load = document.getElementById("load");
+const fuel = document.getElementById("fuel");
+const distance = document.getElementById("distance");
+const passengers = document.getElementById("passengers");
+const result = document.getElementById("result");
+
+/* ================= MOTORBIKE ================= */
+const motorbike = {
+  small: { CO2: 0.081, CH4: 0.0624, N2O: 0.0019 },
+  medium: { CO2: 0.098, CH4: 0.0816, N2O: 0.0020 },
+  large: { CO2: 0.131, CH4: 0.0452, N2O: 0.0020 },
+  fuel: ["petrol", "diesel"]
+};
+
+/* ================= CAR (COMPLETE FIXED DATA) ================= */
+const carData = {
+  small: {
+    petrol: { CO2: 0.140, CH4: 0.0128, N2O: 0.0012 },
+    diesel: { CO2: 0.138, CH4: 0.00017, N2O: 0.0063 },
+    hybrid: { CO2: 0.100, CH4: 0.0084, N2O: 0.0029 }
+  },
+  medium: {
+    petrol: { CO2: 0.178, CH4: 0.0128, N2O: 0.0012 },
+    diesel: { CO2: 0.165, CH4: 0.00017, N2O: 0.0063 },
+    hybrid: { CO2: 0.108, CH4: 0.0060, N2O: 0.0039 },
+    cng: { CO2: 0.154, CH4: 0.0632, N2O: 0.0014 },
+    lpg: { CO2: 0.176, CH4: 0.0020, N2O: 0.0014 }
+  },
+  large: {
+    petrol: { CO2: 0.272, CH4: 0.0128, N2O: 0.0012 },
+    diesel: { CO2: 0.207, CH4: 0.00017, N2O: 0.0063 },
+    hybrid: { CO2: 0.151, CH4: 0.0036, N2O: 0.0050 },
+    cng: { CO2: 0.236, CH4: 0.0632, N2O: 0.0014 },
+    lpg: { CO2: 0.269, CH4: 0.0020, N2O: 0.0014 }
+  },
+  average: {
+    petrol: { CO2: 0.163, CH4: 0.0128, N2O: 0.0012 },
+    diesel: { CO2: 0.168, CH4: 0.00017, N2O: 0.0063 },
+    hybrid: { CO2: 0.118, CH4: 0.0068, N2O: 0.0037 },
+    cng: { CO2: 0.173, CH4: 0.0632, N2O: 0.0014 },
+    lpg: { CO2: 0.197, CH4: 0.0020, N2O: 0.0016 }
+  }
+};
+
+/* ================= VAN ================= */
+const vanData = {
+  "Class I": { petrol: { CO2: 0.181, CH4: 0.0096, N2O: 0.0016 } },
+  "Class II": { petrol: { CO2: 0.195, CH4: 0.0096, N2O: 0.00164 } },
+  "Class III": { petrol: { CO2: 0.314, CH4: 0.0096, N2O: 0.00164 } },
+  "Average": {
+    petrol: { CO2: 0.201, CH4: 0.0096, N2O: 0.0016 },
+    diesel: { CO2: 0.230, CH4: 0.0100, N2O: 0.0062 },
+    cng: { CO2: 0.230, CH4: 0.0472, N2O: 0.0019 },
+    lpg: { CO2: 0.255, CH4: 0.0016, N2O: 0.0019 }
+  }
+};
+
+/* ================= HGV (COMPLETE) ================= */
+const hgvData = {
+  "Rigid 3.5-7.5t": {
+    "0": { diesel: { CO2: 0.447, CH4: 0.004, N2O: 0.0201 } },
+    "50": { diesel: { CO2: 0.486, CH4: 0.004, N2O: 0.0201 } },
+    "100": { diesel: { CO2: 0.524, CH4: 0.004, N2O: 0.0201 } },
+    "avg": { diesel: { CO2: 0.480, CH4: 0.004, N2O: 0.0201 } }
+  },
+  "Rigid 7.5-17t": {
+    "0": { diesel: { CO2: 0.380, CH4: 0.004, N2O: 0.018 } },
+    "50": { diesel: { CO2: 0.460, CH4: 0.0045, N2O: 0.021 } },
+    "100": { diesel: { CO2: 0.534, CH4: 0.0048, N2O: 0.0245 } },
+    "avg": { diesel: { CO2: 0.460, CH4: 0.0045, N2O: 0.021 } }
+  },
+  "Rigid >17t": {
+    "0": { diesel: { CO2: 0.550, CH4: 0.006, N2O: 0.030 } },
+    "50": { diesel: { CO2: 0.650, CH4: 0.007, N2O: 0.035 } },
+    "100": { diesel: { CO2: 0.736, CH4: 0.008, N2O: 0.040 } },
+    "avg": { diesel: { CO2: 0.650, CH4: 0.007, N2O: 0.035 } }
+  },
+  "Articulated 3.5-33t": {
+    "0": { diesel: { CO2: 0.900, CH4: 0.0007, N2O: 0.015 } },
+    "50": { diesel: { CO2: 1.050, CH4: 0.0008, N2O: 0.017 } },
+    "100": { diesel: { CO2: 1.200, CH4: 0.0008, N2O: 0.018 } },
+    "avg": { diesel: { CO2: 1.050, CH4: 0.0008, N2O: 0.017 } }
+  },
+  "Articulated >33t": {
+    "0": { diesel: { CO2: 1.100, CH4: 0.0009, N2O: 0.018 } },
+    "50": { diesel: { CO2: 1.300, CH4: 0.0010, N2O: 0.019 } },
+    "100": { diesel: { CO2: 1.500, CH4: 0.0010, N2O: 0.020 } },
+    "avg": { diesel: { CO2: 1.300, CH4: 0.0010, N2O: 0.019 } }
+  }
+};
+
+/* UI + CALC FUNCTIONS (unchanged logic) */
+
+function updateSize() {
+  const type = vehicleType.value;
+
+  size.innerHTML = "";
+  load.style.display = "none";
+  fuel.innerHTML = "";
+
+  if (type === "motorbike") {
+    size.innerHTML = `
+      <option value="small">Small ≤125cc</option>
+      <option value="medium">Medium 125–500cc</option>
+      <option value="large">Large >500cc</option>`;
+  }
+
+  if (type === "car") {
+    size.innerHTML = `
+      <option value="small">Small</option>
+      <option value="medium">Medium</option>
+      <option value="large">Large</option>
+      <option value="average">Average</option>`;
+  }
+
+  if (type === "van") {
+    size.innerHTML = `
+      <option value="Class I">Class I</option>
+      <option value="Class II">Class II</option>
+      <option value="Class III">Class III</option>
+      <option value="Average">Average</option>`;
+  }
+
+  if (type === "hgv") {
+    size.innerHTML = Object.keys(hgvData)
+      .map(k => `<option value="${k}">${k}</option>`)
+      .join("");
+
+    load.style.display = "block";
+    load.innerHTML = `
+      <option value="0">0%</option>
+      <option value="50">50%</option>
+      <option value="100">100%</option>
+      <option value="avg">avg</option>`;
+  }
+
+  updateFuel();
+}
+
+function updateFuel() {
+  const type = vehicleType.value;
+  const s = size.value;
+
+  fuel.innerHTML = "";
+
+  if (type === "motorbike")
+    motorbike.fuel.forEach(f => fuel.innerHTML += `<option>${f}</option>`);
+
+  if (type === "car")
+    Object.keys(carData[s] || {}).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
+
+  if (type === "van")
+    Object.keys(vanData[s] || {}).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
+
+  if (type === "hgv")
+    fuel.innerHTML = `<option>diesel</option>`;
+}
+
+function calculate() {
+  const type = vehicleType.value;
+  const s = size.value;
+  const f = fuel.value;
+  const d = parseFloat(distance.value);
+  const p = parseFloat(passengers.value || 1);
+  const l = load.value;
+
+  if (!type || !s || !f || isNaN(d)) return alert("Complete inputs");
+
+  let base =
+    type === "hgv"
+      ? hgvData[s][l][f]
+      : type === "motorbike"
+      ? motorbike[s]
+      : type === "car"
+      ? carData[s][f]
+      : vanData[s][f];
+
+  result.innerHTML = `
+    <div class="card">
+      <div class="vehicle-title">
+        ${type.toUpperCase()} — ${s} — ${f} — ${d} km
+      </div>
+
+      <div class="grid">
+        <div class="box co2">CO₂<br>${(base.CO2*d).toFixed(3)} kg</div>
+        <div class="box ch4">CH₄<br>${(base.CH4*d).toFixed(4)} g</div>
+        <div class="box n2o">N₂O<br>${(base.N2O*d).toFixed(4)} g</div>
+      </div>
+
+      <div class="summary">
+        Daily: ${(base.CO2*d).toFixed(3)} kg CO₂<br>
+        Monthly: ${(base.CO2*d*30).toFixed(3)} kg CO₂<br>
+        Yearly: ${(base.CO2*d*365).toFixed(3)} kg CO₂<br>
+        Per Passenger: ${(base.CO2*d/p).toFixed(3)} kg CO₂
+      </div>
     </div>
-    <div id="result" class="result"></div>
+  `;
+}
+
+window.onload = updateSize;
+</script>
+
 </body>
 </html>
