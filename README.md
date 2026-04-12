@@ -106,63 +106,63 @@ const carData = {
 
 /* ================= VAN ================= */
 const vanData = {
-  class1: {
+  "Class I": {
     petrol: { CO2: 0.140, CH4: 0.0128, N2O: 0.0012 },
     diesel: { CO2: 0.138, CH4: 0.00017, N2O: 0.0063 },
     hybrid: { CO2: 0.100, CH4: 0.0084, N2O: 0.0029 }
   },
-  class2: {
+  "Class II": {
     petrol: { CO2: 0.178, CH4: 0.0128, N2O: 0.0012 },
     diesel: { CO2: 0.165, CH4: 0.00017, N2O: 0.0063 },
     hybrid: { CO2: 0.108, CH4: 0.0060, N2O: 0.0039 }
   },
-  class3: {
+  "Class III": {
     petrol: { CO2: 0.140, CH4: 0.0128, N2O: 0.0012 },
     diesel: { CO2: 0.138, CH4: 0.00017, N2O: 0.0063 },
     hybrid: { CO2: 0.100, CH4: 0.0084, N2O: 0.0029 }
   },
-  average: {
+  "Average": {
     petrol: { CO2: 0.163, CH4: 0.0128, N2O: 0.0012 },
     diesel: { CO2: 0.168, CH4: 0.00017, N2O: 0.0063 },
     hybrid: { CO2: 0.118, CH4: 0.0068, N2O: 0.0037 }
   }
 };
 
-/* ================= HGV (REAL LOAD-SPECIFIC DATA) ================= */
+/* ================= HGV (FIXED KEYS) ================= */
 const hgvData = {
-  Rigid, 3.5-7.5t: {
-    "0":   { diesel: { CO2: 0.447, CH4: 0.004, N2O: 0.0201 } },
-    "50":  { diesel: { CO2: 0.486, CH4: 0.004, N2O: 0.0201 } },
+  "Rigid 3.5-7.5t": {
+    "0": { diesel: { CO2: 0.447, CH4: 0.004, N2O: 0.0201 } },
+    "50": { diesel: { CO2: 0.486, CH4: 0.004, N2O: 0.0201 } },
     "100": { diesel: { CO2: 0.524, CH4: 0.004, N2O: 0.0201 } },
     "avg": { diesel: { CO2: 0.480, CH4: 0.004, N2O: 0.0201 } }
   },
-  rigid_17: {
-    "0":   { diesel: { CO2: 0.380, CH4: 0.0040, N2O: 0.018 } },
-    "50":  { diesel: { CO2: 0.460, CH4: 0.0045, N2O: 0.021 } },
-    "100": { diesel: { CO2: 0.534, CH4: 0.0048, N2O: 0.0245 } },
-    "avg": { diesel: { CO2: 0.460, CH4: 0.0045, N2O: 0.021 } }
+  "Rigid 7.5-17t": {
+    "0": { diesel: { CO2: 0.534, CH4: 0.0048, N2O: 0.0245 } },
+    "50": { diesel: { CO2: 0.611, CH4: 0.0048, N2O: 0.0245 } },
+    "100": { diesel: { CO2: 0.687, CH4: 0.0048, N2O: 0.0245 } },
+    "avg": { diesel: { CO2: 0.586, CH4: 0.0048, N2O: 0.0245 } }
   },
-  rigid_17_plus: {
-    "0":   { diesel: { CO2: 0.550, CH4: 0.0060, N2O: 0.030 } },
-    "50":  { diesel: { CO2: 0.650, CH4: 0.0070, N2O: 0.035 } },
-    "100": { diesel: { CO2: 0.736, CH4: 0.0080, N2O: 0.040 } },
-    "avg": { diesel: { CO2: 0.650, CH4: 0.0070, N2O: 0.035 } }
+  "Rigid >17t": {
+    "0": { diesel: { CO2: 0.736, CH4: 0.008, N2O: 0.0400 } },
+    "50": { diesel: { CO2: 0.898, CH4: 0.008, N2O: 0.0400 } },
+    "100": { diesel: { CO2: 1.059, CH4: 0.008, N2O: 0.0400 } },
+    "avg": { diesel: { CO2: 0.964, CH4: 0.008, N2O: 0.0400 } }
   },
-  articulated_33: {
-    "0":   { diesel: { CO2: 0.900, CH4: 0.0007, N2O: 0.015 } },
-    "50":  { diesel: { CO2: 1.050, CH4: 0.0008, N2O: 0.017 } },
-    "100": { diesel: { CO2: 1.200, CH4: 0.0008, N2O: 0.018 } },
-    "avg": { diesel: { CO2: 1.050, CH4: 0.0008, N2O: 0.017 } }
+  "Articulated 3.5-33t": {
+    "0": { diesel: { CO2: 0.603, CH4: 0.0044, N2O: 0.0456 } },
+    "50": { diesel: { CO2: 0.754, CH4: 0.0044, N2O: 0.0456 } },
+    "100": { diesel: { CO2: 905, CH4: 0.0044, N2O: 0.0456 } },
+    "avg": { diesel: { CO2: 0.754, CH4: 0.0044, N2O: 0.0456 } }
   },
-  articulated_33_plus: {
-    "0":   { diesel: { CO2: 1.100, CH4: 0.0009, N2O: 0.018 } },
-    "50":  { diesel: { CO2: 1.300, CH4: 0.0010, N2O: 0.019 } },
-    "100": { diesel: { CO2: 1.500, CH4: 0.0010, N2O: 0.020 } },
-    "avg": { diesel: { CO2: 1.300, CH4: 0.0010, N2O: 0.019 } }
+  "Articulated >33t": {
+    "0": { diesel: { CO2: 0.618, CH4: 0.0052 N2O: 0.0543 } },
+    "50": { diesel: { CO2: 0.824, CH4: 0.0052, N2O: 0.0543 } },
+    "100": { diesel: { CO2: 1.030, CH4: 0.0052, N2O: 0.0543 } },
+    "avg": { diesel: { CO2: 1.898, CH4: 0.0052, N2O: 0.0543 } }
   }
 };
 
-/* ================= UI LOGIC ================= */
+/* ================= FIXED UI ================= */
 function updateSize() {
   const type = vehicleType.value;
 
@@ -172,73 +172,59 @@ function updateSize() {
   load.style.display = "none";
 
   if (type === "motorbike") {
-    size.innerHTML = `<option value="small">Small, ≤125cc</option> 
-                      <option value="medium">Medium, >125 and ≤500cc</option> 
-                      <option value="large">Large, >500cc</option>`;
+    size.innerHTML = `
+      <option value="small">Small, ≤125cc</option>
+      <option value="medium">Medium, >125 and ≤500cc</option>
+      <option value="large">Large, >500cc</option>`;
   }
 
   if (type === "car") {
-    size.innerHTML = `<option value="small">Small Car, <1.4 litre</option> 
-                      <option value="medium">Medium Car, 1.4 - 2.0 litres</option> 
-                      <option value="large">Large Car, >2.0 litres</option>
-                      <option value="average">Average Car</option>`;
+    size.innerHTML = `
+      <option value="small">Small Car, <1.4 litre</option>
+      <option value="medium">Medium Car, 1.4 - 2.0 litres</option>
+      <option value="large">Large Car, >2.0 litres</option>
+      <option value="average">Average Car</option>`;
   }
 
   if (type === "van") {
-    size.innerHTML = `<option value="Class I">Class I, ≤1.305 tonnes</option>
-                      <option value="Class II">Class II, >1.305 to ≤1.74 tonnes</option>
-                      <option value="Class III">Class III, >1.74 to ≤3.5 tonnes</option>
-                      <option value="Average">Average (up to 3.5 tonnes </option>`;
+    size.innerHTML = `
+      <option value="Class I">Class I, ≤1.305 tonnes</option>
+      <option value="Class II">Class II, 1.305–1.74 tonnes</option>
+      <option value="Class III">Class III, 1.74–3.5 tonnes</option>
+      <option value="Average">Average</option>`;
   }
 
   if (type === "hgv") {
-    size.innerHTML = Object.keys(hgvData).map(k =>
-      `<option value="${k}">${k}</option>`
-    ).join("");
+    size.innerHTML = Object.keys(hgvData)
+      .map(k => `<option value="${k}">${k}</option>`).join("");
 
     load.innerHTML = `
-      <option value="0">0% Load</option>
-      <option value="50">50% Load</option>
-      <option value="100">100% Load</option>
-      <option value="avg">Average</option>
-    `;
+      <option value="0">0% Weight Laden</option>
+      <option value="50">50% Weight Laden</option>
+      <option value="100">100% Weight Laden</option>
+      <option value="avg">Averag Weight Laden</option>`;
     load.style.display = "block";
   }
 
   updateFuel();
 }
 
-/* ================= FUEL ================= */
+/* ================= CALC ================= */
 function updateFuel() {
   const type = vehicleType.value;
   const s = size.value;
 
   fuel.innerHTML = "";
 
-  if (type === "motorbike") {
-    motorbike.fuel.forEach(f =>
-      fuel.innerHTML += `<option>${f}</option>`
-    );
-  }
+  if (type === "motorbike") motorbike.fuel.forEach(f => fuel.innerHTML += `<option>${f}</option>`);
 
-  if (type === "car") {
-    Object.keys(carData[s]).forEach(f =>
-      fuel.innerHTML += `<option>${f}</option>`
-    );
-  }
+  if (type === "car") Object.keys(carData[s]).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
 
-  if (type === "van") {
-    Object.keys(vanData[s]).forEach(f =>
-      fuel.innerHTML += `<option>${f}</option>`
-    );
-  }
+  if (type === "van") Object.keys(vanData[s]).forEach(f => fuel.innerHTML += `<option>${f}</option>`);
 
-  if (type === "hgv") {
-    fuel.innerHTML = `<option>diesel</option>`;
-  }
+  if (type === "hgv") fuel.innerHTML = `<option>diesel</option>`;
 }
 
-/* ================= CALCULATE ================= */
 function calculate() {
   const type = vehicleType.value;
   const s = size.value;
@@ -246,10 +232,7 @@ function calculate() {
   const d = parseFloat(distance.value);
   const l = load.value;
 
-  if (!type || !s || !f || isNaN(d)) {
-    alert("Complete all inputs");
-    return;
-  }
+  if (!type || !s || !f || isNaN(d)) return alert("Complete all inputs");
 
   let base =
     type === "hgv"
@@ -267,7 +250,6 @@ function calculate() {
     N₂O: ${(base.N2O * d).toFixed(4)} g
   `;
 }
-
 </script>
 
 </body>
