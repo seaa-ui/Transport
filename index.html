@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Emissions Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .calculator { margin: 20px 0; }
+        .result { margin-top: 20px; font-weight: bold; }
+    </style>
+    <script>
+        function calculateEmissions() {
+            const mileage = document.getElementById('mileage').value;
+            const fuelType = document.getElementById('fuelType').value;
+            let emissions;
+
+            if (fuelType === 'petrol') {
+                emissions = mileage * 2.31;
+            } else if (fuelType === 'diesel') {
+                emissions = mileage * 2.68;
+            } else {
+                emissions = mileage * 2.71; // Assume LPG
+            }
+
+            document.getElementById('result').innerHTML = `Emissions: ${emissions.toFixed(2)} kg CO2`; 
+        }
+    </script>
+</head>
+<body>
+    <h1>Vehicle Emissions Calculator</h1>
+    <div class="calculator">
+        <label for="mileage">Mileage (in km): </label>
+        <input type="number" id="mileage" required>
+        <br><br>
+        <label for="fuelType">Fuel Type: </label>
+        <select id="fuelType">
+            <option value="petrol">Petrol</option>
+            <option value="diesel">Diesel</option>
+            <option value="lpg">LPG</option>
+        </select>
+        <br><br>
+        <button onclick="calculateEmissions()">Calculate Emissions</button>
+    </div>
+    <div id="result" class="result"></div>
+</body>
+</html>
