@@ -92,8 +92,8 @@ button {
 <select id="fuel"></select>
 
 <input type="number" id="distance" placeholder="Distance per day (km)">
-<input type="number" id="# of person on the vehicle" placeholder="# of Person on Vehicle (default = 1)">
-
+<input type="number" id="passengers" placeholder="# of Person on Vehicle (default = 1)">
+  
 <button onclick="calculate()">Calculate</button>
 
 <div id="result"></div>
@@ -224,7 +224,7 @@ function updateSize() {
       <option value="Class I">Class I, ≤1.305 tonnes</option>
       <option value="Class II">Class II, >1.305 to ≤1.74 tonnes</option>
       <option value="Class III">Class III, >1.74 to ≤3.5 tonnes</option>
-      <option value="Average">Average, (up to 3.5 tonnes</option>`;
+      <option value="Average">Average (up to 3.5 tonnes)</option>`;
   }
 
   if (type === "hgv") {
@@ -327,7 +327,7 @@ function calculate() {
 
   document.getElementById("result").innerHTML = resultHistory.join("");
 }
-
+  
 </script>
 
 </body>
