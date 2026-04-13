@@ -87,17 +87,32 @@ button {
   <option value="hgv">Heavy Goods Vehicle</option>
 </select>
 
-<select id="size" onchange="updateFuel()"></select>
+<select id="size" onchange="updateFuel()">
+  <option disabled selected>Select Vehicle Type / Engine Size</option>
+</select>
+
 <select id="load" style="display:none;"></select>
-<select id="fuel"></select>
+
+<select id="fuel">
+  <option disabled selected>Select Fuel Type</option>
+</select>
 
 <input type="number" id="distance" placeholder="Distance per day (km)">
 <input type="number" id="passengers" placeholder="# of Person on Vehicle (default = 1)">
-  
+
 <button onclick="calculate()">Calculate</button>
 
 <div id="result"></div>
 
+</div>
+
+<div class="footer">
+  <h3>References</h3>
+  <a href="https://www.climate-transparency.org/wp-content/uploads/2021/01/Philippines-CT-2020.pdf" target="_blank">Climate Transparency Philippines Report</a>
+  <a href="https://ghgprotocol.org/calculation-tools-and-guidance" target="_blank">GHG Protocol</a>
+  <a href="https://www.epa.gov/sites/default/files/2016-03/documents/stationaryemissions_3_2016.pdf" target="_blank">EPA Stationary Emissions</a>
+  <a href="https://niccdies.climate.gov.ph/greenhouse-gas-emissions-from-waste" target="_blank">Philippines Waste Emissions</a>
+  <a href="https://ndlinindustries.com/refrigerant-table/" target="_blank">Refrigerant Table</a>
 </div>
 
 <script>
